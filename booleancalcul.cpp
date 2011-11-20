@@ -1,5 +1,5 @@
 #include "booleancalcul.h"
-#include <cmath>
+#include <QDebug>
 
 BooleanCalcul::BooleanCalcul(const QString &calcul)
     : _string(calcul), _variables("\n"), _truthtable(-1), _error(None)
@@ -138,14 +138,18 @@ QString BooleanCalcul::karnaugh()
             truthtable &= ~BooleanCalcul(result).truthtable(variables());
         }
 
-        BoolList chooser(variables().size(), true);
-        while (!chooser.isAllFalse()) {
+        BoolList chooser(variables().size(), false);
+        while (!chooser.isAllTrue()) {
+            ++chooser;
+
             if (chooser.countTrue() == exprsize) {
                 QString expr;
                 for (int j = 0; j < chooser.size(); ++j) {
                     if (chooser[j])
                         expr += _variables[j];
                 }
+
+                qDebug() << expr;
 
                 BoolList statelist(exprsize, true);
 
@@ -155,6 +159,7 @@ QString BooleanCalcul::karnaugh()
                         if (!statelist[k])
                             calculexpr.insert(k, '!');
                     }
+
                     BoolList exprtable = BooleanCalcul(calculexpr).truthtable(variables());
 
                     if (((~_truthtable & exprtable).isAllFalse()) && (!(truthtable & exprtable).isAllFalse())) {
@@ -171,7 +176,6 @@ QString BooleanCalcul::karnaugh()
                     --statelist;
                 }
             }
-            --chooser;
         }
     }
 
