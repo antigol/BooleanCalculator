@@ -147,6 +147,7 @@ QString BooleanCalcul::karnaugh()
         QStringList exprlist;
         QList<BoolList> tablelist;
         QVector<int> counttable(_truthtable.size(), 0);
+        BoolList expressiontables(_truthtable.size(), false);
 
         // une serie des bit pour determiner la forme de l'expression
         BoolList letters(variables().size(), false);
@@ -185,6 +186,7 @@ QString BooleanCalcul::karnaugh()
 
                         // On la rajoute dans la table de comptage
                         counttable += exprtable;
+                        expressiontables |= exprtable;
                     }
 
                     --negation;
@@ -195,26 +197,42 @@ QString BooleanCalcul::karnaugh()
 
         // Une fois toutes les expression de tille [exprsize] testées on regarde notre map
         while (counttable.count(0) != counttable.size()) {
+
+            // Si la table de comptes contient un '1' il est evidant que l'expression qui l'a trouvé est indispensable
             if (counttable.contains(1)) {
+                // La position du '1' sert à trouver l'expression qui lui correspond
                 int pos = counttable.indexOf(1);
 
-                // On prend la première expression
+                // On cherche l'expression qui resoud le plus de cases
+                int jj = 0;
+                int best = 0;
                 for (int j = 0; j < tablelist.size(); ++j) {
-                    if (tablelist[j][pos]) {
-                        result += (result.isEmpty()?"":"+")+exprlist[j];
+                    if (tablelist[j][pos]) {                        
+                        int score = (expressiontables & tablelist[j]).countTrue();
 
-                        counttable &= ~tablelist[j];
-
-                        tablelist.removeAt(j);
-                        exprlist.removeAt(j);
-                        break;
+                        if (score > best) {
+                            best = score;
+                            jj = j;
+                        }
                     }
                 }
 
+                // On rajoute l'expression dans le résultat
+                result += (result.isEmpty()?"":"+")+exprlist[jj];
+
+                // On clear les cases qui n'on plus besoin d'être representées par une expression
+                counttable &= ~tablelist[jj];
+                expressiontables &= ~tablelist[jj];
+
+                tablelist.removeAt(jj);
+                exprlist.removeAt(jj);
+
             } else {
-                counttable -= tablelist[0];
-                tablelist.removeFirst();
-                exprlist.removeFirst();
+                // Si aucune case ne vaut 1 (exemple : !B!C!D+A!BC+BCD+!AB!C)
+                // On supprime arbitrairement une expression de la liste
+                counttable -= tablelist.last();
+                tablelist.removeLast();
+                exprlist.removeLast();
             }
         }
 

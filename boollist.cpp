@@ -75,9 +75,7 @@ void BoolList::operator ()(int i, bool b)
 BoolList BoolList::operator &(const BoolList &bl) const
 {
     BoolList ret(*this);
-
-    ret &= bl;
-    return ret;
+    return ret &= bl;
 }
 
 BoolList & BoolList::operator &=(const BoolList &bl)
@@ -95,14 +93,21 @@ BoolList & BoolList::operator &=(const BoolList &bl)
 
 BoolList BoolList::operator |(const BoolList &bl) const
 {
-    Q_ASSERT(_size == bl._size && _datasize == bl._datasize);
+    BoolList ret(*this);
+    return ret |= bl;
+}
 
-    BoolList ret(_size);
-    for (int i = 0; i < _datasize; ++i) {
-        ret._data[i] = _data[i] | bl._data[i];
+BoolList & BoolList::operator |=(const BoolList &bl)
+{
+    if (&bl != this) {
+        Q_ASSERT(_size == bl._size && _datasize == bl._datasize);
+
+        for (int i = 0; i < _datasize; ++i) {
+            _data[i] |= bl._data[i];
+        }
     }
 
-    return ret;
+    return *this;
 }
 
 BoolList BoolList::operator ~() const

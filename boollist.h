@@ -17,6 +17,7 @@ public:
     BoolList operator &(const BoolList &bl) const;
     BoolList &operator &=(const BoolList &bl);
     BoolList operator |(const BoolList &bl) const;
+    BoolList &operator |=(const BoolList &bl);
     BoolList operator ~() const;
     BoolList &operator ++();
     BoolList &operator --();
