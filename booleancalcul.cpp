@@ -17,6 +17,8 @@ const QString & BooleanCalcul::variables()
                     _variables.append(_string[i]);
             }
         }
+
+        qSort(_variables.begin(), _variables.end());
     }
 
     return _variables;
@@ -134,46 +136,54 @@ QString BooleanCalcul::karnaugh()
       */
 
     for (int exprsize = 1; exprsize <= variables().size(); ++exprsize) {
+
+        // comme on passe à un lot d'expressions plus complexes, on enleve les solutions déjà trouvées
         if (!result.isEmpty()) {
             truthtable &= ~BooleanCalcul(result).truthtable(variables());
         }
 
-        BoolList chooser(variables().size(), false);
-        while (!chooser.isAllTrue()) {
-            ++chooser;
+        // une serie des bit pour determiner la forme de l'expression
+        BoolList letters(variables().size(), false);
+        while (!letters.isAllTrue()) {
+            ++letters;
+            // va de 000001 à 111111
 
-            if (chooser.countTrue() == exprsize) {
-                QString expr;
-                for (int j = 0; j < chooser.size(); ++j) {
-                    if (chooser[j])
-                        expr += _variables[j];
+            if (letters.countTrue() == exprsize) {
+                QString exprOnlyLetters;
+                for (int j = 0; j < letters.size(); ++j) {
+                    if (letters[j])
+                        exprOnlyLetters += _variables[j];
                 }
+                // une expression de tille [exprsize] est créée
+                // exemple : ACD
 
-                qDebug() << expr;
-
-                BoolList statelist(exprsize, true);
-
-                while (!statelist.isUnderflow()) {
-                    QString calculexpr = expr;
-                    for (int k = statelist.size() - 1; k >= 0; --k) {
-                        if (!statelist[k])
-                            calculexpr.insert(k, '!');
+                // serie de bit qui determine la négation de chaque lettre de l'expression
+                BoolList negation(exprsize, true);
+                while (!negation.isUnderflow()) {
+                    QString expr = exprOnlyLetters;
+                    for (int k = negation.size() - 1; k >= 0; --k) {
+                        if (!negation[k])
+                            expr.insert(k, '!');
                     }
+                    // Exemple : expr == "A!CD" quand negation = {true, false, true}
 
-                    BoolList exprtable = BooleanCalcul(calculexpr).truthtable(variables());
+                    // puis on calcule la table de verité de l'expression
+                    BoolList exprtable = BooleanCalcul(expr).truthtable(variables());
 
                     if (((~_truthtable & exprtable).isAllFalse()) && (!(truthtable & exprtable).isAllFalse())) {
-                        if (!result.isEmpty())
-                            result += '+';
-                        result += calculexpr;
+                        // Si l'expression est correcte et qu'elle est interessante
 
-                        BoolList testtruth = BooleanCalcul(result).truthtable(variables());
-                        if (_truthtable == testtruth) {
+                        // On la rajoute au résultat
+                        result += result.isEmpty() ? expr : "+"+expr;
+
+                        // Si le résultat est complet on le retourne
+                        if (_truthtable == BooleanCalcul(result).truthtable(variables())) {
                             return result;
                         }
                     }
 
-                    --statelist;
+                    --negation;
+                    // va de 111111 à 000000 (aucun barré à tous barrés)
                 }
             }
         }

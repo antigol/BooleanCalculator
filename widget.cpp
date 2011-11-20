@@ -9,6 +9,7 @@ Widget::Widget(QWidget *parent) :
     ui->setupUi(this);
 
     connect(ui->lineEdit, SIGNAL(returnPressed()), this, SLOT(lineEditReturnPressed()));
+    connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(lineSelected(QListWidgetItem*)));
 }
 
 Widget::~Widget()
@@ -34,4 +35,9 @@ void Widget::lineEditReturnPressed()
     item->setText(ret);
     item->setTextAlignment(Qt::AlignRight);
     ui->listWidget->setCurrentItem(item);
+}
+
+void Widget::lineSelected(QListWidgetItem *item)
+{
+    ui->lineEdit->setText(item->text());
 }

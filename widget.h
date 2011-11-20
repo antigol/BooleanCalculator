@@ -7,6 +7,8 @@ namespace Ui {
     class Widget;
 }
 
+class QListWidgetItem;
+
 class Widget : public QWidget
 {
     Q_OBJECT
@@ -17,6 +19,7 @@ public:
 
 private slots:
     void lineEditReturnPressed();
+    void lineSelected(QListWidgetItem *);
 
 private:
     Ui::Widget *ui;
