@@ -36,4 +36,45 @@ private:
     int _state;
 };
 
+#include <QVector>
+
+template <typename T>
+QVector<T>& operator +=(QVector<T>& a, const BoolList& b)
+{
+    Q_ASSERT(a.size() == b.size());
+
+    for (int i = 0; i < a.size(); ++i) {
+        if (b[i])
+            ++a[i];
+    }
+
+    return a;
+}
+
+template <typename T>
+QVector<T>& operator -=(QVector<T>& a, const BoolList& b)
+{
+    Q_ASSERT(a.size() == b.size());
+
+    for (int i = 0; i < a.size(); ++i) {
+        if (b[i])
+            --a[i];
+    }
+
+    return a;
+}
+
+template <typename T>
+QVector<T>& operator &=(QVector<T>& a, const BoolList& b)
+{
+    Q_ASSERT(a.size() == b.size());
+
+    for (int i = 0; i < a.size(); ++i) {
+        if (!b[i])
+            a[i] = 0;
+    }
+
+    return a;
+}
+
 #endif // BOOLLIST_H

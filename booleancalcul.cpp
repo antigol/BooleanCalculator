@@ -1,5 +1,7 @@
 #include "booleancalcul.h"
 #include <QDebug>
+#include <QVector>
+#include <QStringList>
 
 BooleanCalcul::BooleanCalcul(const QString &calcul)
     : _string(calcul), _variables("\n"), _truthtable(-1), _error(None)
@@ -142,6 +144,10 @@ QString BooleanCalcul::karnaugh()
             truthtable &= ~BooleanCalcul(result).truthtable(variables());
         }
 
+        QStringList exprlist;
+        QList<BoolList> tablelist;
+        QVector<int> counttable(_truthtable.size(), 0);
+
         // une serie des bit pour determiner la forme de l'expression
         BoolList letters(variables().size(), false);
         while (!letters.isAllTrue()) {
@@ -173,13 +179,12 @@ QString BooleanCalcul::karnaugh()
                     if (((~_truthtable & exprtable).isAllFalse()) && (!(truthtable & exprtable).isAllFalse())) {
                         // Si l'expression est correcte et qu'elle est interessante
 
-                        // On la rajoute au résultat
-                        result += result.isEmpty() ? expr : "+"+expr;
+                        // On la rajoute dans la map
+                        exprlist << expr;
+                        tablelist << exprtable;
 
-                        // Si le résultat est complet on le retourne
-                        if (_truthtable == BooleanCalcul(result).truthtable(variables())) {
-                            return result;
-                        }
+                        // On la rajoute dans la table de comptage
+                        counttable += exprtable;
                     }
 
                     --negation;
@@ -187,6 +192,34 @@ QString BooleanCalcul::karnaugh()
                 }
             }
         }
+
+        // Une fois toutes les expression de tille [exprsize] testées on regarde notre map
+        while (counttable.count(0) != counttable.size()) {
+            if (counttable.contains(1)) {
+                int pos = counttable.indexOf(1);
+
+                // On prend la première expression
+                for (int j = 0; j < tablelist.size(); ++j) {
+                    if (tablelist[j][pos]) {
+                        result += (result.isEmpty()?"":"+")+exprlist[j];
+
+                        counttable &= ~tablelist[j];
+
+                        tablelist.removeAt(j);
+                        exprlist.removeAt(j);
+                        break;
+                    }
+                }
+
+            } else {
+                counttable -= tablelist[0];
+                tablelist.removeFirst();
+                exprlist.removeFirst();
+            }
+        }
+
+        if (BooleanCalcul(result).truthtable(variables()) == _truthtable)
+            break;
     }
 
     return result;

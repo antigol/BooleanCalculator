@@ -149,15 +149,24 @@ bool BoolList::operator ==(const BoolList &bl) const
     if (_size != bl.size())
         return false;
 
-    for (int i = 0; i < _datasize - 1; ++i) {
-        if (_data[i] != bl._data[i]) {
-            return false;
+    int i;
+
+    if (_size % SIZEOFINT == 0) {
+        i = _datasize - 1;
+    } else {
+        i = _datasize - 2;
+
+        if (_size > 0) {
+            for (int i = SIZEOFINT * (_datasize - 1); i < _size; ++i) {
+                if ((*this)[i] != bl[i])
+                    return false;
+            }
         }
     }
-    if (_size > 0) {
-        for (int i = SIZEOFINT * (_datasize - 1); i < _size; ++i) {
-            if ((*this)[i] != bl[i])
-                return false;
+
+    for (; i >= 0; --i) {
+        if (_data[i] != bl._data[i]) {
+            return false;
         }
     }
     return true;
@@ -165,15 +174,24 @@ bool BoolList::operator ==(const BoolList &bl) const
 
 bool BoolList::isAllFalse() const
 {
-    for (int i = 0; i < _datasize - 1; ++i) {
-        if (_data[i] != 0x0) {
-            return false;
+    int i;
+
+    if (_size % SIZEOFINT == 0) {
+        i = _datasize - 1;
+    } else {
+        i = _datasize - 2;
+
+        if (_size > 0) {
+            for (int i = SIZEOFINT * (_datasize - 1); i < _size; ++i) {
+                if ((*this)[i])
+                    return false;
+            }
         }
     }
-    if (_size > 0) {
-        for (int i = SIZEOFINT * (_datasize - 1); i < _size; ++i) {
-            if ((*this)[i])
-                return false;
+
+    for (; i >= 0; --i) {
+        if (_data[i] != (uint)0x0) {
+            return false;
         }
     }
     return true;
@@ -181,15 +199,24 @@ bool BoolList::isAllFalse() const
 
 bool BoolList::isAllTrue() const
 {
-    for (int i = 0; i < _datasize - 1; ++i) {
-        if (_data[i] != ~(uint)0x0) {
-            return false;
+    int i;
+
+    if (_size % SIZEOFINT == 0) {
+        i = _datasize - 1;
+    } else {
+        i = _datasize - 2;
+
+        if (_size > 0) {
+            for (int i = SIZEOFINT * (_datasize - 1); i < _size; ++i) {
+                if (!(*this)[i])
+                    return false;
+            }
         }
     }
-    if (_size > 0) {
-        for (int i = SIZEOFINT * (_datasize - 1); i < _size; ++i) {
-            if (!(*this)[i])
-                return false;
+
+    for (; i >= 0; --i) {
+        if (_data[i] != ~((uint)0x0)) {
+            return false;
         }
     }
     return true;
