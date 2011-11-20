@@ -1,0 +1,14 @@
+Simplifie les expression booléenne.
+
+Exemples :
+(AB+CA)+(!AB+!(B&!A)) <=> 1
+A+B|A&C*A <=> A+B
+
+Accepte les expression suivante:
+- Chaque lettre est une variable (sensible à la case, A != a)
+- Considère deux lettres qui se suivent comme un "inter"
+- Les operateurs '&' et '*' sont les operateurs de "inter"
+- Les operateurs '|' et '+' sont les operateurs de "union"
+- Les operateurs '~' et '!' sont les operateurs de négation
+
+La résolution se base sur un tableau de Karnaugh.
