@@ -1,4 +1,4 @@
-Simplifie les expression booléenne.
+Simplifie les expressions booléennes.
 
 Exemples :
 (AB+CA)+(!AB+!(B&!A)) <=> 1
